@@ -1,0 +1,56 @@
+#
+#  Dostepne opcje:
+#    (player) - gracz (ty)
+#    (prefix) - prefix przed wiadomoscia)
+#    (grupa) - twoja nazwa grupy
+#    (grupatag) - tag twojej grupy
+#
+
+prefix: '&c&lPG »'
+pomoc:
+  amountoflinespomoc: '8' #wpisujecie tutaj ilosc linijek. Musiscie odjac 1 linijke. W tym przypadku to bedzie 8, bo jest 9 linijek
+  line1: '&7&l■■■■■■■■■■■■■■■■■■■■ &c&lPG Pomoc &7&l■■■■■■■■■■■■■■■■■■■■'
+  line2: '&e&l۞ &c/pg create <nazwa grupy> <tag grupy> &7&l- &7tworzy grupe o nazwie i tagu'
+  line3: '&e&l۞ &c/pg add <nazwa gracza> &7&l- &7wysyla zaproszenie do twojej grupy'
+  line4: '&e&l۞ &c/pg delete <nazwa gracza> &7&l- &7usuwa gracza z grupy'
+  line5: '&e&l۞ &c/pg accept <nazwa grupy> &7&l- &7akceptuje zaproszenie od grupy'
+  line6: '&e&l۞ &c/pg deny <nazwa grupy> &7&l- &7anuluje zaproszenie do grupy'
+  line7: '&e&l۞ &c/pg leave &7&l- &7wychodzisz z grupy'
+  line8: '&e&l۞ &c/pg panel &7&l- &7panel grupy dostepny tylko dla jej wlasciciela'
+  line9: '&7&l■■■■■■■■■■■■■■■■■■■■ &c&lPG Pomoc &7&l■■■■■■■■■■■■■■■■■■■■'
+chaton: '&a&lChat PG &7&l[(grupatag)&7&l] &7(player) » (wiadomosc)' #dodatkowa opcja - (wiadomosc) - wiadomosc gracza, ktory ja wysyla
+chatoff: '&9(player) &7&l» &7(wiadomosc)' #dodatkowa opcja - (wiadomosc) - wiadomosc gracza, ktory ja wysyla
+maxgroups: '(prefix) &7Masz juz maksymalna ilosc grup, w ktorych mozesz byc'
+nameofgroup: '(prefix) &7Musisz podac nazwe grupy'
+nameofgroupexist: '(prefix) &7Taka nazwa grupy juz istnieje'
+tagofgroup: '(prefix) &7Musisz podac TAG grupy'
+tagofgroupexist: '(prefix) &7Taki TAG grupy juz istnieje'
+groupcreate: '(prefix) &7Stworzyles nowa grupe o nazwie &a&l(grupa) &7i tagu &7&l[&a&l(grupatag)&7&l]'
+nogroup: '&c&lPG » &7Nie masz swojej grupy'
+onlyadminadd: '&c&lPG » &7Tylko Admin grupy moze dodawac czlonkow'
+nameofplayer: '&c&lPG » &7Musisz podac nazwe gracza'
+noadminadd: '&c&lPG » &7Nie mozesz dodac samego siebie'
+playerisoffline: '&c&lPG » &7Gracz jest offline'
+invitetoplayer: '&c&lPG » &7Zaprosiles gracza &a(player2) do grupy' #dodatkowa opcja - (player2) - gracz, ktory odtrzyma zaproszenie
+invitefromgroup:
+  amountoflinesinvitefromgroup: '2' #wpisujecie tutaj ilosc linijek. Musiscie odjac 1 linijke. W tym przypadku to bedzie 2, bo sa 3 linijki
+  line1: '&c&lPG » &7Dotarlo do Ciebie zaproszenie od grupy &a(grupa)'
+  line2: '&c&lPG » &7Aby zaakceptowac zaproszenie wpisz &a&l/pg accept (grupa)'
+  line3: '&c&lPG » &7Aby anulowac zaproszenie wpisz &a&l/pg deny (grupa)'
+invitecancel: '&c&lPG » &7Zaproszenie do gracza &a(player2) &7zostalo anulowane' #dodatkowa opcja - (player2) - gracz, ktory odtrzyma zaproszenie
+onlyadmindelete: '&c&lPG » &7Tylko Admin grupy moze usuwac czlonkow'
+noplayergroup: '&c&lPG » &7Gracz nie jest w twojej grupie'
+noadminremove: 'c&lPG » &7Nie mozesz usunac siebie z grupy'
+playergroup: '&c&lPG » &7Nie mozesz dojsc do innej grupy. Juz masz swoja grupe'
+playerisalreadyingroup: '&c&lPG » &7Jestes juz w tej grupie'
+noinvite: '&c&lPG » &7Nie masz zaproszenia od grupy &a(grupa2)' #dodatkowa opcja - (grupa2) - grupa, ktora nie wyslala zaproszenia do gracza
+inviteaccepttoplayer: '&c&lPG » &7Przyjoles zaproszenie do grupy &a(grupa2)' #dodatkowa opcja - (grupa2) - grupa, ktora wyslala zaproszenia do gracza
+inviteaccepttogroup: '&c&lPG » &7Gracz &a(player2) &7zaakceptowal zaproszenie do twojej grupy' #dodatkowa opcja - (player2) gracz, ktory zaakceptowal zaproszenie do grupy
+invitecanceltoplayer: '&c&lPG » &7Anulowales zaproszenie od grupy &a%arg 2%' #dodatkowa opcja - (grupa2) - grupa, ktora wyslala zaproszenie do gracza
+invitecanceltogroup: '&c&lPG » &7Gracz &a%player% &7anulowal zaproszenie do twojej grupy' #dodatkowa opcja - (player2) gracz, ktory nie zaakceptowal zaproszenia do grupy
+noadmindelete: '&c&lPG » &7Nie mozesz wyjsc z wlasnej grupy'
+onlyadminpanel: '&c&lPG » &7Tylko Admin grupy moze uzywac panelu'
+groupdeleteaccept: '&c&lPG » &7Twoja grupa o nazwie &a&l(grupa) &7i tagu &7&l[(grupatag)&7&l] &7zostala usunieta'
+groupdeletedeny: '&c&lPG » &7Anulowales usuwanie swojej grupy'
+groupleaveaccept: '&c&lPG » &7Wyszedles z grupy &a&l(grupa)'
+groupleavedeny: '&c&lPG » &7Postanowiles, ze zostaniesz w grupie'
