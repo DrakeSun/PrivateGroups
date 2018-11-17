@@ -1,0 +1,387 @@
+#-------------------------------#
+#								                #
+#		     Autor » DrakeSun		    #
+#	       Wersja » 1.0 			    #
+#        						            #########
+# 	Zakaz sprzedazy skryptu				      #################
+# 	Zakaz podszywania sie pod autora					          #
+# 	Zakaz kopiowania czesci kodu do wlasnych potrzeb	  #
+#														                            #
+#-------------------------------------------------------#
+
+
+#--------------------------------------------------------------------------------------------------------------#
+#----------------------------------# Pisanie na chacie grupowym lub zwyklym #----------------------------------#
+#--------------------------------------------------------------------------------------------------------------#
+
+on chat:
+	set {_message} to message
+	cancel event
+	if {grupa::chat::%{grupa::%player%}%} is "&a&lTak":
+		loop {grupa::czlonkowie::%{grupa::%player%}%::*}:
+			pgReplace(player, "chaton")
+			replace all "(wiadomosc)" in {pg::chaton} with "%{_message}%"
+			send "%{pg::chaton}%" to loop-value
+			stop
+	loop all players:
+		pgReplace(player, "chatoff")
+		replace all "(wiadomosc)" in {pg::chatoff} with "%{_message}%"
+		if {grupa::chat::%{grupa::%loop-player%}%} is "&c&lNie":
+			send "%{pg::chatoff}%" to loop-player
+		if {grupa::chat::%{grupa::%loop-player%}%} is not set:
+			send "%{pg::chatoff}%" to loop-player
+			
+#--------------------------------------------------------------------------------------#
+#----------------------------------# Glowna komenda #----------------------------------#
+#--------------------------------------------------------------------------------------#	
+		
+command /privategroup [<text>] [<text>] [<text>]:
+	aliases: /pg
+	trigger:
+		if arg 1 is not set:
+			set {_number} to 1
+			set {_pomoc} to yaml value "pomoc.line%{_number}%" from file "plugins/PrivateGroups/messages.yml"
+			send "%{_pomoc}%"
+			set {_linijki} to yaml value "pomoc.amountoflinespomoc" from file "plugins/PrivateGroups/messages.yml"
+			set {_linijki} to {_linijki} parsed as integer
+			loop {_linijki} times:
+				add 1 to {_number}
+				set {_pomoc} to yaml value "pomoc.line%{_number}%" from file "plugins/PrivateGroups/messages.yml"
+				send "%{_pomoc}%"
+				
+#----------------------------------# Tworzenie grupy #----------------------------------#
+			
+		if arg 1 is "stworz":
+			if {grupa::%player%} is set:
+				pgReplace(player, "maxgroups")
+				send "%{pg::maxgroups}%"
+				stop
+			if arg 2 is not set:
+				pgReplace(player, "nameofgroup")
+				send "%{pg::nameofgroup}%"
+				stop
+			if arg 2 is {grupa::name::%arg 2%}:
+				pgReplace(player, "nameofgroupexist")
+				send "%{pg::nameofgroupexist}%"
+				stop
+			if arg 3 is not set:
+				pgReplace(player, "tagofgroup")
+				send "%{pg::tagofgroup}%"
+				stop
+			if arg 3 is {grupa::tag::%arg 2%}:
+				pgReplace(player, "tagofgroupexist")
+				send "%{pg::tagofgroupexist}%"
+				stop
+			set {grupa::%player%} to arg 2
+			set {grupa::name::%arg 2%} to arg 2
+			set {grupa::tag::%arg 2%} to arg 3
+			set {grupa::owner::%arg 2%} to "%player%"
+			set {grupa::chat::%arg 2%} to "&c&lNie"
+			add player to {grupa::czlonkowie::%arg 2%::*}
+			pgReplace(player, "groupcreate")
+			send "%{pg::groupcreate}%" to player
+			 
+#----------------------------------# Dodawanie czlonka do grupy #----------------------------------#
+			
+		if arg 1 is "dodaj":
+			if {grupa::%player%} is not set:
+				pgReplace(player, "nogroup")
+				send "%{pg::nogroup}%"
+				stop
+			if {grupa::owner::%{grupa::%player%}%} is not "%player%":
+				pgReplace(player, "onlyadminadd")
+				send "%{pg::onlyadminadd}%"
+				stop
+			if arg 2 is not set:
+				pgReplace(player, "nameofplayer")
+				send "%{pg::nameofplayer}%"
+				stop
+			if arg 2 is {grupa::owner::%{grupa::%player%}%}:
+				pgReplace(player, "noadminadd")
+				send "%{pg::noadminadd}%"
+				stop
+			set {_player} to arg 2 parsed as player
+			if {_player} is offline:
+				pgReplace(player, "playerisoffline")
+				send "%{pg::playerisoffline}%"
+				stop
+			set {grupa::invite::%arg 2%::%{grupa::%player%}%} to true
+			replace all "(player2)" in {pg::invitetoplayer} with "%{_player}%"
+			send "%{pg::invitetoplayer}%"
+			set {_invitefromgroup} to yaml value "invitefromgroup.line%{_number}%" from file "plugins/PrivateGroups/messages.yml"
+			set {_number} to 1
+			send "%{_invitefromgroup}%"
+			set {_linijki} to yaml value "invitefromgroup.amountoflinesinvitefromgroup" from file "plugins/PrivateGroups/messages.yml"
+			set {_linijki} to {_linijki} parsed as integer
+			loop {_linijki} times:
+				add 1 to {_number}
+				set {_invitefromgroup} to yaml value "invitefromgroup.line%{_number}%" from file "plugins/PrivateGroups/messages.yml"
+				send "%{_invitefromgroup}%" to {_player}
+			wait 60 seconds
+			delete {grupa::invite::%arg 2%::%{grupa::%player%}%}
+			send "%{pg::invitecancel}%"
+			
+#----------------------------------# Usuwanie czlonka z grupy #----------------------------------#
+			
+		if arg 1 is "usun":
+			if {grupa::%player%} is not set:
+				pgReplace(player, "nogroup")
+				send "%{pg::nogroup}%"
+				stop
+			if {grupa::owner::%{grupa::%player%}%} is not "%player%":
+				pgReplace(player, "onlyadmindelete")
+				send "%{pg::onlyadmindelete}%"
+				stop
+			if arg 2 is not set:
+				pgReplace(player, "nameofplayer")
+				send "%{pg::nameofplayer}%"
+				stop
+			if arg 2 is not {grupa::czlonkowie::%{grupa::%player%}%::*}:
+				pgReplace(player, "noplayergroup")
+				send "%{pg::noplayergroup}%"
+				stop
+			if arg 2 is {grupa::owner::%{grupa::%player%}%}:
+				pgReplace(player, "noadminremove")
+				send "%{pg::noadminremove}%"
+				stop
+			set {_player} to arg 2 parsed as player
+			remove arg 2 from {grupa::czlonkowie::%{grupa::%player%}%::*}
+			send "&c&lPG » &7Pomyslnie usunoles &a%arg 2% &7z grupy"
+			send "&c&lPG » &7Zostales usuniety z grupy &a&l%{grupa::%player%}%" to {_player}
+			delete {grupa::%player%}
+			
+#----------------------------------# Akceptowanie zaproszenia od grupy #----------------------------------#
+			
+		if arg 1 is "accept":
+			if arg 2 is not set:
+				pgReplace(player, "nameofgroup")
+				send "%{pg::nameofgroup}%"
+				stop
+			if {grupa::%player%} is set:
+				pgReplace(player, "playergroup")
+				send "%{pg::playergroup}%"
+				stop
+			if arg 2 is {grupa::%player%}:
+				pgReplace(player, "playerisalreadyingroup")
+				send "%{pg::playerisalreadyingroup}%"
+				stop
+			if {grupa::invite::%player%::%arg 2%} is not set:
+				replace all "(grupa2)" in {pg::noinvite} with arg 2
+				pgReplace(player, "noinvite")
+				send "%{pg::noinvite}%"
+				stop
+			replace all "(grupa2)" in {pg::inviteaccepttoplayer} with arg 2
+			replace all "(player2)" in {pg::inviteaccepttogroup} with "%player%"
+			pgReplace(player, "inviteaccepttoplayer")
+			pgReplace(player, "inviteaccepttogroup")
+			delete {grupa::invite::%player%::%arg 2%}
+			set {grupa::%player%} to arg 2
+			add player to {grupa::czlonkowie::%player%::*}
+			send "%{pg::inviteaccepttoplayer}%"
+			send "%{pg::inviteaccepttogroup}%" to {grupa::owner::%arg 2%}
+			
+#----------------------------------# Anulowanie zaproszenia od grupy #----------------------------------#			
+			
+		if arg 1 is "deny":
+			if arg 2 is not set:
+				pgReplace(player, "nameofgroup")
+				send "%{pg::nameofgroup}%"
+				stop
+			if {grupa::%player%} is set:
+				pgReplace(player, "playergroup")
+				send "%{pg::playergroup}%"
+				stop
+			if arg 2 is {grupa::%player%}:
+				pgReplace(player, "playerisalreadyingroup")
+				send "%{pg::playerisalreadyingroup}%"
+				stop
+			if {grupa::invite::%player%::%arg 2%} is not set:
+				replace all "(grupa2)" in {pg::noinvite} with arg 2
+				pgReplace(player, "noinvite")
+				send "%{pg::noinvite}%"
+				stop
+			delete {grupa::invite::%player%::%arg 2%}
+			replace all "(grupa2)" in {pg::invitecanceltoplayer} with arg 2
+			replace all "(player2)" in {pg::invitecanceltogroup} with "%player%"
+			pgReplace(player, "invitecanceltoplayer")
+			pgReplace(player, "inviteaccepttogroup")
+			send "%{pg::invitecanceltoplayer}%"
+			send "%{pg::invitecanceltogroup}%" to {grupa::owner::%arg 2%}
+			
+#----------------------------------# Wychodzenie z grupy #----------------------------------#		
+			
+		if arg 1 is "leave":
+			if {grupa::%player%} is not set:
+				pgReplace(player, "nogroup")
+				send "%{pg::nogroup}%"
+				stop
+			if {grupa::owner::%{grupa::%player%}%} is "%player%":
+				pgReplace(player, "noadmindelete")
+				send "%{pg::noadmindelete}%"
+				stop
+			pgMenu(player, "wyjdz")
+			
+#----------------------------------# Otwieranie głównego panelu grupy #----------------------------------#	
+			
+		if arg 1 is "panel":
+			if {grupa::%player%} is not set:
+				pgReplace(player, "nogroup")
+				send "%{pg::nogroup}%"
+				stop
+			if {grupa::owner::%{grupa::%player%}%} is not "%player%":
+				pgReplace(player, "onlyadminpanel")
+				send "%{pg::onlyadminpanel}%"
+				stop
+			pgMenu(player, "menu")
+			
+#--------------------------------------------------------------------------------------#
+#-------------------------------------# Funkcje #--------------------------------------#
+#--------------------------------------------------------------------------------------#
+			
+#-------------------------------------# Otwieranie menu #--------------------------------------#			
+
+function pgMenu(p: player, typ: text):
+	wait 2 ticks
+	if {_typ} is "menu":
+		open virtual chest inventory with size 3 named "&7Panel &7&l» &a&l%{grupa::%{_p}%}%" to {_p}
+		set {_szq} to light gray stained glass pane named " "
+		set {_chat} to writable book named "&7Status chatu grupy"
+		set line 1 of lore of {_chat} to "&7&l» %{grupa::chat::%{grupa::%{_p}%}%}%"
+		set line 2 of lore of {_chat} to " "
+		set line 3 of lore of {_chat} to "&7Kliknij, aby zmienic status"
+		set {_lista} to book named "&7Lista graczy"
+		set line 1 of lore of {_lista} to "&7Kliknij, aby zobaczyc liste czlonkow grupy"
+		set {_usun} to barrier named "&cUsun swoja grupe"
+		set line 2 of lore of {_usun} to "&7Kliknij, aby kontynuowac usuwanie grupy"
+		set line 1 of lore of {_usun} to " "
+		format a gui slot 0 of {_p} with {_szq} 
+		loop 3*9-1 times:
+			format a gui slot loop-number of {_p} with {_szq} 
+		format a gui slot 11 of {_p} with {_chat} to run function pgChat({_p})
+		format a gui slot 13 of {_p} with {_lista} to close then run function pgList({_p})
+		format a gui slot 15 of {_p} with {_usun} to run function pgMenu({_p}, "usun")
+	else if {_typ} is "usun":
+		open virtual chest inventory with size 3 named "&7Czy napewno chcesz usunac grupe &a&l%{grupa::%{_p}%}%&7?" to {_p}
+		set {_szq} to light gray stained glass pane named " "
+		set {_accept} to green hardened clay named "&l&aTak, usun"
+		set line 1 of lore of {_accept} to " "
+		set line 2 of lore of {_accept} to "&7Jestem pewien tego, co robie"
+		set {_deny} to red hardened clay named "&l&cNie, zostal"
+		set line 1 of lore of {_deny} to " "
+		set line 2 of lore of {_deny} to "&7Nie chce usuwac swojej grupy"
+		format a gui slot 0 of {_p} with {_szq} 
+		loop 3*9-1 times:
+			format a gui slot loop-number of {_p} with {_szq} 
+		format a gui slot 12 of {_p} with {_accept} to close then run function pgDelete({_p}, "accept")
+		format a gui slot 14 of {_p} with {_deny} to close then run function pgDelete({_p}, "deny")
+	else if {_typ} is "wyjdz":
+		open virtual chest inventory with size 3 named "&7Czy napewno chcesz wyjsc z grupy &a&l%{grupa::%{_p}%}%&7?" to {_p}
+		set {_szq} to light gray stained glass pane named " "
+		set {_accept} to green hardened clay named "&l&aTak, wyjdz"
+		set line 1 of lore of {_accept} to " "
+		set line 2 of lore of {_accept} to "&7Jestem pewien tego, co robie"
+		set {_deny} to red hardened clay named "&l&cNie, zostan"
+		set line 1 of lore of {_deny} to " "
+		set line 2 of lore of {_deny} to "&7Nie chce wychodzic z grupy"
+		format a gui slot 0 of {_p} with {_szq} 
+		loop 3*9-1 times:
+			format a gui slot loop-number of {_p} with {_szq} 
+		format a gui slot 12 of {_p} with {_accept} to close then run function pgLeave({_p}, "accept")
+		format a gui slot 14 of {_p} with {_deny} to close then run function pgLeave({_p}, "deny")
+	
+#-------------------------------------# Ustawianie statusu chatu grupy #--------------------------------------#
+	
+function pgChat(p: player):
+	if {grupa::chat::%{grupa::%{_p}%}%} is "&a&lTak":
+		set {grupa::chat::%{grupa::%{_p}%}%} to "&c&lNie"
+		pgMenu({_p}, "menu")
+	else if {grupa::chat::%{grupa::%{_p}%}%} is "&c&lNie":
+		set {grupa::chat::%{grupa::%{_p}%}%} to "&a&lTak"
+		pgMenu({_p}, "menu")
+		
+#-------------------------------------# Lista czlonkow grupy #--------------------------------------#
+		
+function pgList(p: player):
+	loop {grupa::czlonkowie::%{grupa::%{_p}%}%::*}:
+		send "&c&lPG » &7Lista osob w twojej grupie (&a%loop-index%&7): %loop-value%" to {_p}
+		
+#----------------------------------# Usuwanie Grupy #----------------------------------#	
+
+function pgDelete(p: player, typ: text):
+	if {_typ} is "accept":
+		pgReplace({_p}, "groupdeleteaccept")
+		send "%{pg::groupdeleteaccept}%" to {_p}
+		set {_grupa} to {grupa::%{_p}%}
+		loop all players:
+			if loop-player is {grupa::czlonkowie::%{_grupa}%::*}:
+				delete {grupa::%{_p}%}
+		delete {grupa::name::%{_grupa}%}
+		delete {grupa::tag::%{_grupa}%}
+		delete {grupa::owner::%{_grupa}%}
+		delete {grupa::czlonkowie::%{_grupa}%::*}
+	else if {_typ} is "deny":
+		pgReplace({_p}, "groupdeletedeny")
+		send "%{pg::groupdeletedeny}%" to {_p}
+		
+#----------------------------------# Wychodzenie z grupy #----------------------------------#	
+
+function pgLeave(p: player, typ: text):
+	if {_typ} is "accept":
+		pgReplace({_p}, "groupleaveaccept")
+		send "%{pg::groupleaveaccept}%" to {_p}
+		remove {_p} from {grupa::czlonkowie::%{grupa::%{_p}%}%::*}
+		delete {grupa::%{_p}%}
+	if {_typ} is "deny":
+		pgReplace({_p}, "groupleaveadeny")
+		send "%{pg::groupleavedeny}%" to {_p}
+	
+function pgReplace(p: player, text: text):
+	set {pg::prefix} to yaml value "prefix" from file "plugins/PrivateGroups/messages.yml"
+	replace all "(prefix)" in {pg::%{_text}%} with "%{pg::prefix}%"
+	replace all "(player)" in {pg::%{_text}%} with "%{_p}%"
+	replace all "(grupa)" in {pg::%{_text}%} with "%{grupa::%{_p}%}%"
+	replace all "(grupatag)" in {pg::%{_text}%} with "%{grupa::tag::%{grupa::%{_p}%}%}%"
+	
+#--------------------------------------------------------------------------------------#
+#---------------------------------------# YAML #---------------------------------------#
+#--------------------------------------------------------------------------------------#
+
+on script load:
+	if file "plugins/PrivateGroups/messages.yml" doesn't exist:
+		create file "plugins/PrivateGroups/messages.yml"
+		wait 1 second
+		set {_var::*} to contents from url "https://raw.githubusercontent.com/DrakeSun/PrivateGroups/master/messages.yml"
+		loop {_var::*}:
+			if "%loop-value%" is not "" or " ":
+				add 1 to {_line}
+				write "%loop-value%" at line {_line} to file "plugins/PrivateGroups/messages.yml"
+		send "&aPlik stworzony pomyslnie :D" to console
+	set {pg::chaton} to yaml value "chaton" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::chatoff} to yaml value "chatoff" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::groupcreate} to yaml value "groupcreate" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::maxgroups} to yaml value "maxgroups" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::nameofgroup} to yaml value "nameofgroup" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::nameofgroupexist} to yaml value "nameofgroupexist" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::tagofgroup} to yaml value "tagofgroup" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::tagofgroupexist} to yaml value "tagofgroupexist" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::playerisoffline} to yaml value "playerisoffline" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::noadminadd} to yaml value "noadminadd" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::nameofplayer} to yaml value "nameofplayer" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::nogroup} to yaml value "nogroup" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::onlyadminadd} to yaml value "onlyadminadd" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::invitetoplayer} to yaml value "invitetoplayer" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::invitecancel} to yaml value "invitecancel" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::onlyadmindelete} to yaml value "onlyadmindelete" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::noplayergroup} to yaml value "noplayergroup" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::noadminremove} to yaml value "noadminremove" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::playergroup} to yaml value "playergroup" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::playerisalreadyingroup} to yaml value "playerisalreadyingroup" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::noinvite} to yaml value "noinvite" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::inviteaccepttoplayer} to yaml value "inviteaccepttoplayer" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::inviteaccepttogroup} to yaml value "inviteaccepttogroup" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::invitecanceltoplayer} to yaml value "invitecanceltoplayer" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::invitecanceltogroup} to yaml value "invitecanceltogroup" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::noadmindelete} to yaml value "noadmindelete" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::onlyadminpanel} to yaml value "onlyadminpanel" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::groupleaveaccept} to yaml value "groupleaveaccept" from file "plugins/PrivateGroups/messages.yml"
+	set {pg::groupleavedeny} to yaml value "groupleavedeny" from file "plugins/PrivateGroups/messages.yml"
